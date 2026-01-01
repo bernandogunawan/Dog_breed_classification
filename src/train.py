@@ -4,7 +4,7 @@ import yaml
 import torch
 from comet_ml import Experiment
 
-import train, create_dataloader, build_model, save_model
+import utils, data_setup, engine, model_builder
 
 
 # --------------------------------------------------
@@ -41,17 +41,20 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     experiment.log_parameter("device", device)
 
-    # Data
-    train_dataloader, val_loader = get_dataloaders(config)
-
     # Model
-    model = build_model(
-        backbone=config["model"]["backbone"],
-        num_classes=config["model"]["num_classes"],
-        pretrained=config["model"]["pretrained"]
+    model,weight = model_builder.build_model(
+        model_choice=config["model"]["name"],
+        num_classes=config["model"]["num_classes"]
     ).to(device)
 
-    criterion = torch.nn.CrossEntropyLoss()
+    # preprocess
+    train_dataloader,test_dataloader,class_name = data_setup.create_dataloader(
+        path=args.path,
+        transform=weight,
+        image_size=config["data"]["img_size"],
+        batch_size=config["data"]["batch_size"]
+    )
+    loss_func = torch.nn.CrossEntropyLoss()
 
     # --------------------------------------------------
     # Stage 1: Train classifier head (freeze backbone)
@@ -63,53 +66,52 @@ def main():
 
     optimizer = torch.optim.Adam(
         filter(lambda p: p.requires_grad, model.parameters()),
-        lr=config["training"]["lr_head"]
+        lr=config["training"]["learning_rate"]
     )
 
     for epoch in range(config["training"]["freeze_epochs"]):
-        train_loss = train_one_epoch(
-            model, train_loader, criterion, optimizer, device
-        )
-        val_loss, val_acc = validate(
-            model, val_loader, criterion, device
-        )
+        train_loss, train_acc = engine.train_step(
+            model, train_dataloader, optimizer, loss_func)
+        test_loss, test_acc = engine.evaluate(
+            model, test_dataloader, loss_func)
 
         experiment.log_metrics({
             "train_loss": train_loss,
-            "val_loss": val_loss,
-            "val_acc": val_acc
+            "train_acc": train_acc,
+            "val_loss": test_loss,
+            "val_acc": test_acc
         }, step=epoch)
 
     # --------------------------------------------------
     # Stage 2: Fine-tuning (unfreeze backbone)
     # --------------------------------------------------
-    for param in model.parameters():
-        param.requires_grad = True
+    # for param in model.parameters():
+    #     param.requires_grad = True
 
-    optimizer = torch.optim.Adam(
-        model.parameters(),
-        lr=config["training"]["lr_backbone"]
-    )
+    # optimizer = torch.optim.Adam(
+    #     model.parameters(),
+    #     lr=config["training"]["lr_backbone"]
+    # )
 
-    start_epoch = config["training"]["freeze_epochs"]
+    # start_epoch = config["training"]["freeze_epochs"]
 
-    for epoch in range(start_epoch, start_epoch + config["training"]["finetune_epochs"]):
-        train_loss = train_one_epoch(
-            model, train_loader, criterion, optimizer, device
-        )
-        val_loss, val_acc = validate(
-            model, val_loader, criterion, device
-        )
+    # for epoch in range(start_epoch, start_epoch + config["training"]["finetune_epochs"]):
+    #     train_loss = train_one_epoch(
+    #         model, train_loader, criterion, optimizer, device
+    #     )
+    #     val_loss, val_acc = validate(
+    #         model, val_loader, criterion, device
+    #     )
 
-        experiment.log_metrics({
-            "train_loss": train_loss,
-            "val_loss": val_loss,
-            "val_acc": val_acc
-        }, step=epoch)
+    #     experiment.log_metrics({
+    #         "train_loss": train_loss,
+    #         "val_loss": val_loss,
+    #         "val_acc": val_acc
+    #     }, step=epoch)
 
     # Save final model
-    torch.save(model.state_dict(), "final_model.pt")
-    experiment.log_model("final_model", "final_model.pt")
+    # torch.save(model.state_dict(), "final_model.pt")
+    # experiment.log_model("final_model", "final_model.pt")
 
     experiment.end()
 

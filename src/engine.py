@@ -2,6 +2,9 @@
 import torch
 from tqdm.auto import tqdm
 
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
 # Creating training step function
 def train_step(model, dataloader, optimizer, loss_func):
     model.to(device)

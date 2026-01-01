@@ -44,7 +44,6 @@ def load_data(path):
     images_path = path + "/images/Images/"
     lists_path = path + "/lists/"
 
-    image_tar = tarfile()
     # load train and test file
     train_file = loadmat(lists_path + "train_list.mat")
     test_file = loadmat(lists_path + "test_list.mat")
@@ -78,12 +77,12 @@ def create_dataloader(path, transform, image_size, batch_size):
     train_dataset = CostumDataset(path,train_list,transform)
     test_dataset = CostumDataset(path,test_list,transform)
 
-    train_dataloader = Dataloader(
+    train_dataloader = DataLoader(
         train_dataset,
         batch_size = batch_size,
-        shuffle = True,
+        shuffle = True)
 
-    test_dataloader = Dataloader(
+    test_dataloader = DataLoader(
         test_dataset,
         batch_size = batch_size,
         shuffle = False
