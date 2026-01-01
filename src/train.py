@@ -1,8 +1,8 @@
 
 import argparse
 import yaml
-import torch
 from comet_ml import Experiment
+import torch
 
 import utils, data_setup, engine, model_builder
 
@@ -30,6 +30,7 @@ def main():
 
     # Init Comet
     experiment = Experiment(
+        "5Cd7hajJ3PuFPv85lVNcmB2lm",
         project_name="dog-breed-classification",
         workspace="bernandogunawan"
     )
@@ -45,7 +46,8 @@ def main():
     model,weight = model_builder.build_model(
         model_choice=config["model"]["name"],
         num_classes=config["model"]["num_classes"]
-    ).to(device)
+    )
+    model = model.to(device)
 
     # preprocess
     train_dataloader,test_dataloader,class_name = data_setup.create_dataloader(

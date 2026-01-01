@@ -14,4 +14,4 @@ model:
 experiment:
   project_name: "dog-breed-classification"
   name: "efficientnet_b0"
-  tags: "transfer learning"
+  tags: ["transfer learning"]

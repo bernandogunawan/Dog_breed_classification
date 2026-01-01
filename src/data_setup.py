@@ -9,8 +9,8 @@ from PIL import Image
 import os
 
 class CostumDataset(Dataset):
-    def __init__(self, path, pair, transform = None):
-        self.image_path = path + "/images/Images/"
+    def __init__(self, images_path, pair, transform = None):
+        self.image_path = images_path
         self.pair = pair
         self.transform = transform
 
@@ -32,21 +32,17 @@ class CostumDataset(Dataset):
     def get_class(self):
         num = 0
         class_name = []
-        for x,y in pair:
+        for x,y in self.pair:
             if y == num:
                 class_name.append(x.split("-",1)[1].split("/",1)[0])
                 num += 1
         return class_name
 
-def load_data(path):
-
-    # get image and file path
-    images_path = path + "/images/Images/"
-    lists_path = path + "/lists/"
+def load_data(list_path):
 
     # load train and test file
-    train_file = loadmat(lists_path + "train_list.mat")
-    test_file = loadmat(lists_path + "test_list.mat")
+    train_file = loadmat(list_path + "train_list.mat")
+    test_file = loadmat(list_path + "test_list.mat")
 
     # get train and test data to a list
     file_train_list = [x[0] for x in train_file["file_list"].squeeze()]
@@ -69,13 +65,17 @@ def filter_list(path, pair, image_size):
 
 
 def create_dataloader(path, transform, image_size, batch_size):
-    train_list,test_list = load_data(path)
 
-    train_list = filter_list(path, train_list, image_size)
-    test_list = filter_list(path, test_list, image_size)
+    images_path = path + "/images/Images/"
+    lists_path = path + "/lists/"
 
-    train_dataset = CostumDataset(path,train_list,transform)
-    test_dataset = CostumDataset(path,test_list,transform)
+    train_list,test_list = load_data(lists_path)
+
+    train_list = filter_list(images_path, train_list, image_size)
+    test_list = filter_list(images_path, test_list, image_size)
+
+    train_dataset = CostumDataset(images_path,train_list,transform)
+    test_dataset = CostumDataset(images_path,test_list,transform)
 
     train_dataloader = DataLoader(
         train_dataset,
