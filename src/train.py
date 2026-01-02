@@ -99,7 +99,9 @@ def main():
             model, train_dataloader, optimizer, loss_func)
         test_loss, test_acc = engine.evaluate(
             model, test_dataloader, loss_func)
-
+        
+        print(f"Epoch: {epoch+1} | train_loss: {train_loss:.4f} | train_acc: {train_acc:.4f} | val_loss: {test_loss:.4f} | val_acc: {test_acc:.4f}")
+        
         experiment.log_metrics({
             "train_loss": train_loss,
             "train_acc": train_acc,
