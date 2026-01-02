@@ -9,10 +9,10 @@ training:
   unfreeze_lr: 0.0001
 
 model:
-  name: "efficientnet_b0"
+  name: "efficientnet_b2"
   num_classes: 120
   
 experiment:
   project_name: "dog-breed-classification"
-  name: "efficientnet_b0"
+  name: "efficientnet_b2"
   tags: ["transfer learning"]
