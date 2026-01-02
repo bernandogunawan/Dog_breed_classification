@@ -112,30 +112,30 @@ def main():
     # --------------------------------------------------
     # Stage 2: Fine-tuning (unfreeze backbone)
     # --------------------------------------------------
-    for param in model.parameters():
-        param.requires_grad = True
+    # for param in model.parameters():
+    #     param.requires_grad = True
 
-    optimizer = torch.optim.Adam(
-        model.parameters(),
-        lr=config["training"]["unfreeze_lr"]
-    )
+    # optimizer = torch.optim.Adam(
+    #     model.parameters(),
+    #     lr=config["training"]["unfreeze_lr"]
+    # )
 
-    start_epoch = config["training"]["freeze_epochs"]
+    # start_epoch = config["training"]["freeze_epochs"]
 
-    for epoch in range(start_epoch, start_epoch + config["training"]["unfreeze_epochs"]):
-        train_loss, train_acc = engine.train_step(
-            model, train_dataloader, optimizer, loss_func)
-        test_loss, test_acc = engine.evaluate(
-            model, test_dataloader, loss_func)
+    # for epoch in range(start_epoch, start_epoch + config["training"]["unfreeze_epochs"]):
+    #     train_loss, train_acc = engine.train_step(
+    #         model, train_dataloader, optimizer, loss_func)
+    #     test_loss, test_acc = engine.evaluate(
+    #         model, test_dataloader, loss_func)
         
-        print(f"Epoch: {epoch+1} | train_loss: {train_loss:.4f} | train_acc: {train_acc:.4f} | val_loss: {test_loss:.4f} | val_acc: {test_acc:.4f}")
+    #     print(f"Epoch: {epoch+1} | train_loss: {train_loss:.4f} | train_acc: {train_acc:.4f} | val_loss: {test_loss:.4f} | val_acc: {test_acc:.4f}")
 
-        experiment.log_metrics({
-            "train_loss": train_loss,
-            "train_acc": train_acc,
-            "val_loss": test_loss,
-            "val_acc": test_acc
-        }, step=epoch)
+    #     experiment.log_metrics({
+    #         "train_loss": train_loss,
+    #         "train_acc": train_acc,
+    #         "val_loss": test_loss,
+    #         "val_acc": test_acc
+    #     }, step=epoch)
 
     experiment.end()
 
