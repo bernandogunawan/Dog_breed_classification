@@ -91,7 +91,7 @@ def main():
 
     optimizer = torch.optim.Adam(
         filter(lambda p: p.requires_grad, model.parameters()),
-        lr=config["training"]["learning_rate"]
+        lr=config["training"]["freeze_lr"]
     )
 
     for epoch in range(config["training"]["freeze_epochs"]):
