@@ -14,6 +14,11 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", type=str, required=True)
     parser.add_argument("--config", type=str, required=True)
+    parser.add_argument("--batch_size", type=int)
+    parser.add_argument("--freeze_epochs", type=int)
+    parser.add_argument("--unfreeze_epochs", type=int)
+    parser.add_argument("--freeze_lr", type=float)
+    parser.add_argument("--unfreeze_lr", type=float)
     parser.add_argument("--resume", type=str, default=None)
     return parser.parse_args()
 
@@ -24,9 +29,27 @@ def parse_args():
 def main():
     args = parse_args()
 
+    config = {
+        "data": {},
+        "model": {},
+        "training": {},
+        "experiment": {}
+    }
     # Load config
     with open(args.config) as f:
-        config = yaml.safe_load(f)
+        config.update(yaml.safe_load(f))
+
+
+    if args.batch_size is not None:
+        config["data"]["batch_size"] = args.batch_size
+    if args.freeze_epochs is not None:
+        config["training"]["freeze_epochs"] = args.freeze_epochs
+    if args.unfreeze_epochs is not None:
+        config["training"]["unfreeze_epochs"] = args.unfreeze_epochs
+    if args.freeze_lr is not None:
+        config["training"]["freeze_lr"] = args.freeze_lr
+    if args.unfreeze_lr is not None:
+        config["training"]["unfreeze_lr"] = args.unfreeze_lr
 
     # Init Comet
     experiment = Experiment(
