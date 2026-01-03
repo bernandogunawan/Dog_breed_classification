@@ -3,7 +3,7 @@ data:
   batch_size: 32
 
 training:
-  freeze_epoch: 5
+  freeze_epochs: 5
   unfreeze_epochs: 5
   freeze_lr: 0.001
   unfreeze_lr: 0.0001
