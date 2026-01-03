@@ -84,10 +84,17 @@ def main():
     # --------------------------------------------------
     # Stage 1: Train classifier head (freeze backbone)
     # --------------------------------------------------
-    for param in model.parameters():
-        param.requires_grad = False
-    for param in model.classifier.parameters():
-        param.requires_grad = True
+    if config["model"]["name"] == "efficientnet_b2":
+        for param in model.parameters():
+            param.requires_grad = False
+        for param in model.classifier.parameters():
+            param.requires_grad = True
+
+    elif config["model"]["name"] == "resnet50":
+        for param in model.parameters():
+            param.requires_grad = False
+        for param in model.fc.parameters():
+            param.requires_grad = True
 
     optimizer = torch.optim.Adam(
         filter(lambda p: p.requires_grad, model.parameters()),
