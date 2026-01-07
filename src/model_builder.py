@@ -6,9 +6,9 @@ def build_model(model_choice, num_classes, pretrained=True):
     if model_choice == "efficientnet_b2":
         weight = models.EfficientNet_B2_Weights.DEFAULT
         model = models.efficientnet_b2(weights=weight)
-        model.classifier[1] = nn.Linear(
+        model.classifier[1] = nn.Sequential(
             nn.Dropout(p=0.2, inplace=True),
-            model.classifier[1].in_features, num_classes
+            nn.Linear(model.classifier[1].in_features, num_classes)
         )
 
         for param in model.parameters():
