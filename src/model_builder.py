@@ -2,7 +2,7 @@
 import torchvision.models as models
 import torch.nn as nn
 
-def build_model(model_choice, num_classes, pretrained=True):
+def build_model(model_choice, num_classes):
     if model_choice == "efficientnet_b2":
         weight = models.EfficientNet_B2_Weights.DEFAULT
         model = models.efficientnet_b2(weights=weight)
